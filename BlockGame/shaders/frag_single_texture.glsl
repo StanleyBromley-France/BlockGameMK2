@@ -1,16 +1,15 @@
 #version 400 core
 out vec4 FragColor;
 
-in vec3 ourColor;
 in vec2 TexCoord;
-
-flat in double col;
+flat in float col; // Match type with vertex shader
 
 uniform sampler2D texture1;
 
 void main()
 {
+    vec4 texColor = texture(texture1, TexCoord);
 
-
-    FragColor = texture(texture1, TexCoord) + vec4(col,col,col, 1);
+    // Apply the calculated alpha (col increases with distance)
+    FragColor = vec4(texColor.rgb, col);
 }

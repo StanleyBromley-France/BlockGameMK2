@@ -92,11 +92,6 @@ CubeMesh::CubeMesh()
     ShaderMixed->SetInt("texture1", 0); // assigns texture1 to texture unit 0
     ShaderMixed->SetInt("texture2", 1); // assigns texture1 to texture unit 0
 
-    ShaderMixed->use();
-    glBindTexture(GL_TEXTURE_2D, dirtTexture); // GL_TEXTURE0
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, sandTexture); // GL_TEXTURE1
-
 }
 
 Shader* CubeMesh::GetShader(Texture texture)
@@ -104,7 +99,7 @@ Shader* CubeMesh::GetShader(Texture texture)
     if(texture != Texture::STONE)
         return ShaderSingle;
 
-    return ShaderMixed;
+    return ShaderSingle;
 }
 
 GladHelper::MeshBuffers& CubeMesh::GetMeshBuffers()
@@ -132,8 +127,6 @@ void CubeMesh::SwitchTexture(Texture texture)
         ShaderMixed->use();
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, stoneTexture);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, dirtTexture);
         break;
     }
 }
