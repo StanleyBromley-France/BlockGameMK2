@@ -16,9 +16,6 @@
 
 #include "Biomes.h"
 #include "map.h"
-#include "Mobs/steve.h"
-#include "Mobs/pig.h"
-
 
 double lastTime = 0.0;
 int frameCount = 0;
@@ -56,10 +53,8 @@ int main()
     }
     unsigned int randomSeed = static_cast<unsigned int>(std::time(nullptr));
 
-    Map map = Map(100, 100, randomSeed);
+    Map map = Map(32, 32, randomSeed);
 
-    Steve steve = Steve(glm::vec3(3.0f, 6.0f, 2.0f));
-    Pig pig = Pig(glm::vec3(6.0f, 4.5f, 10.0f));
 
 
     // render loop
@@ -77,9 +72,6 @@ int main()
                 chunk.RenderChunk();
             }
         }
-
-        steve.Render();
-        pig.Render();
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         glfwSwapBuffers(window);

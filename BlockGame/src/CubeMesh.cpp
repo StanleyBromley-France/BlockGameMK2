@@ -1,23 +1,17 @@
 #include "CubeMesh.h"
 
-Shader* CubeMesh::ShaderMixed = nullptr;
-Shader* CubeMesh::ShaderSingle = nullptr;
-
-unsigned int CubeMesh::sandTexture = NULL;
-unsigned int CubeMesh::dirtTexture = NULL;
-unsigned int CubeMesh::stoneTexture = NULL;
-
+// static method to get the singleton instance
+CubeMesh& CubeMesh::GetInstance()
+{
+    static CubeMesh instance;
+    return instance;
+}
 
 // sets up cube model class, called first time getInstance is run
-CubeMesh::CubeMesh()
+// sets up cube model class, called first time getInstance is run
+CubeMesh::CubeMesh() : Shader("shaders/vertex_shader.glsl", "shaders/frag_single_texture.glsl")
 {
-    if (ShaderSingle == nullptr)
-        ShaderSingle = new Shader("shaders/vertex_shader.glsl", "shaders/frag_single_texture.glsl");
-
-    if (ShaderMixed == nullptr)
-        ShaderMixed = new Shader("shaders/vertex_shader.glsl", "shaders/fragment_shader.glsl");
-
-    static float vertices[] = {
+    float vertices[] = {
         // Positions          // Texture Coords
 
         // Front face
@@ -57,10 +51,9 @@ CubeMesh::CubeMesh()
          -0.5f,  0.5f,  0.5f,  0.0f, 1.0f   // Top-left
     };
 
-    static unsigned int indices[] = {
+    unsigned int indices[] = {
         // Front face
         0, 1, 2,  2, 3, 0,
-
         // Back face
         4, 7, 6, 6, 5, 4,
         // Left face
@@ -76,30 +69,21 @@ CubeMesh::CubeMesh()
     MeshBuffers = GladHelper::MeshBuffers();
     MeshBuffers.SetupMeshBuffers(vertices, sizeof(vertices) / sizeof(float), indices, sizeof(indices) / sizeof(unsigned int));
 
-    if (sandTexture == NULL) {
-        sandTexture = GladHelper::loadTexture("images/sand.jpg");
-        dirtTexture = GladHelper::loadTexture("images/dirt.jpg");
-        stoneTexture = GladHelper::loadTexture("images/stone.jpg");
-    }
+    sandTexture = GladHelper::loadTexture("images/sand.png");
+    dirtTexture = GladHelper::loadTexture("images/dirt.png");
+    stoneTexture = GladHelper::loadTexture("images/stone.png");
 
-    //unsigned int texture2 = GladHelper::loadTexture("awesomeface.png", false);
-
-    ShaderSingle->use();
-    ShaderSingle->SetInt("texture1", 0); // assigns texture1 to texture unit 0
-
-
-    ShaderMixed->use();
-    ShaderMixed->SetInt("texture1", 0); // assigns texture1 to texture unit 0
-    ShaderMixed->SetInt("texture2", 1); // assigns texture1 to texture unit 0
+    Shader.use();
+    Shader.SetInt("texture1", 0); // assigns texture1 to texture unit 0
 
 }
 
-Shader* CubeMesh::GetShader(Texture texture)
+Shader& CubeMesh::GetShader(Texture texture)
 {
     if(texture != Texture::STONE)
-        return ShaderSingle;
+        return Shader;
 
-    return ShaderSingle;
+    return Shader;
 }
 
 GladHelper::MeshBuffers& CubeMesh::GetMeshBuffers()
@@ -109,24 +93,25 @@ GladHelper::MeshBuffers& CubeMesh::GetMeshBuffers()
 
 void CubeMesh::SwitchTexture(Texture texture)
 {
-
+    Shader.use();
 
     switch (texture)
     {
     case Texture::SAND:
-        ShaderSingle->use();
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, sandTexture);
+        Shader.SetInt("u_isGrayscale", 0);
+
         break;
     case Texture::DIRT:
-        ShaderMixed->use();
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, dirtTexture);
+        Shader.SetInt("u_isGrayscale", 0);
         break;
     case Texture::STONE:
-        ShaderMixed->use();
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, stoneTexture);
+        Shader.SetInt("u_isGrayscale", 1);
         break;
     }
 }

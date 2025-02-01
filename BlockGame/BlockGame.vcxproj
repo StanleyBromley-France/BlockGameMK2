@@ -145,9 +145,6 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\map.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
-    <ClCompile Include="src\Mobs\pig.cpp" />
-    <ClCompile Include="src\Mobs\steve.cpp" />
-    <ClCompile Include="src\Model.cpp" />
     <ClCompile Include="stb.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -540,11 +537,8 @@
     <ClInclude Include="src\GladHelper.h" />
     <ClInclude Include="src\map.h" />
     <ClInclude Include="src\Mesh.h" />
-    <ClInclude Include="src\Mobs\pig.h" />
-    <ClInclude Include="src\Model.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\GLFWHelper.h" />
-    <ClInclude Include="src\Mobs\steve.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="dependencies\lib\assimp-vc143-mt.lib" />
@@ -702,8 +696,6 @@
     <None Include="objects\zombie\source\zombie.fbx" />
     <None Include="shaders\fragment_shader.glsl" />
     <None Include="shaders\frag_single_texture.glsl" />
-    <None Include="shaders\model_import_frag.glsl" />
-    <None Include="shaders\model_import_vertex.glsl" />
     <None Include="shaders\vertex_shader.glsl" />
   </ItemGroup>
   <ItemGroup>

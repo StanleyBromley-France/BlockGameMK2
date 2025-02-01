@@ -1,29 +1,43 @@
-#version 400 core
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec2 aTexCoord;
-layout (location = 3) in mat4 instanceMatrix;
+#version 330 core
 
-out vec2 TexCoord;
-flat out float col; // Use float instead of double
+// Input vertex attributes
+layout (location = 0) in vec3 vertexPosition;   // Position of the vertex (x, y, z)
+layout (location = 1) in vec2 textureCoordinates; // Texture coordinates (u, v)
+layout (location = 3) in mat4 instanceTransformationMatrix; // Transformation matrix for instanced rendering
 
-uniform mat4 view;
-uniform mat4 projection;
+// Output variables to pass to fragment shader
+out vec2 TexCoord;  // Output texture coordinates for fragment shader
+flat out float alpha;  // Output alpha value for transparency (0 = fully transparent, 1 = fully opaque)
+
+// Uniforms for camera view and projection matrices
+uniform mat4 viewMatrix;     // View transformation matrix (camera space)
+uniform mat4 projectionMatrix; // Projection transformation matrix (perspective/orthogonal)
 
 void main()
 {
-    vec4 worldPosition = instanceMatrix * vec4(aPos, 1.0);
-    vec4 viewPosition = view * worldPosition;
+    // Calculate the world position of the vertex by applying the instance transformation matrix
+    vec4 worldPosition = instanceTransformationMatrix * vec4(vertexPosition, 1.0);
 
-    float distance = length(viewPosition.xyz);
-    
-    float fadeStart = 208.0;  // Fade starts 3 chunks before the max render distance
-    float fadeEnd = 224.0;    // Fade lasts for 16 units
+    // Apply the view transformation to the world position to get the position in camera space
+    vec4 viewPosition = viewMatrix * worldPosition;
 
-    if (distance <= fadeStart)
-        col = 1.0;  // Fully visible
+    // Calculate the distance from the camera (view position)
+    float distanceFromCamera = length(viewPosition.xyz);
+
+    // Define the start and end distance for the fade effect
+    float fadeStartDistance = 208.0;  // Fade effect starts when the object is 3 chunks away from the max render distance
+    float fadeEndDistance = 224.0;    // Fade effect finishes when the object is 16 units further
+
+    // If the object is closer than the fade start distance, it's fully visible
+    if (distanceFromCamera <= fadeStartDistance)
+        alpha = 1.0;  // Fully opaque
     else
-        col = 1.0 - clamp((distance - fadeStart) / (fadeEnd - fadeStart), 0.0, 1.0);
+        // Gradually fade out based on distance
+        alpha = 1.0 - (distanceFromCamera - fadeStartDistance) / (fadeEndDistance - fadeStartDistance);
 
-    gl_Position = projection * viewPosition;
-    TexCoord = aTexCoord;
+    // Calculate the final position of the vertex in clip space by applying the projection transformation
+    gl_Position = projectionMatrix * viewPosition;
+
+    // Pass the texture coordinates to the fragment shader
+    TexCoord = textureCoordinates;
 }

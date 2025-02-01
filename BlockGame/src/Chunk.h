@@ -16,13 +16,10 @@ public:
 	void Deallocate();
 	glm::vec3 chunkPos;
 private:
-	CubeMesh Mesh;
 	Biomes::Biome currentBiome;
-	std::vector<glm::mat4> modelMatrices;
-
+	int modelMatricesSize;
 	unsigned int chunkBuffer;
 	static const int chunkSize = 16;
 	static const int chunkHeight = 32;
-	CubeInstance*** cubes;
 };
 #endif

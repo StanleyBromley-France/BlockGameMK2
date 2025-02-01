@@ -2,6 +2,7 @@
 #include "STB/stb_image.h"
 
 namespace GladHelper {
+
     bool initialiseAndConfigure() {
         // glad: load all OpenGL function pointers
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -32,8 +33,12 @@ namespace GladHelper {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
         // texture filtering parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);  // No interpolation when minifying (scaling down)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  // No interpolation when magnifying (scaling up)
+
 
         // creates and sends image data
         int width, height, nrChannels;
@@ -42,7 +47,13 @@ namespace GladHelper {
         }
         unsigned char* data = stbi_load(imagePath, &width, &height, &nrChannels, 0);
         if (data) {
-            GLenum format = (nrChannels == 4) ? GL_RGBA : GL_RGB;
+            GLenum format = GL_RGB;
+            if (nrChannels == 1) {
+                format = GL_RED;  // Grayscale image
+            }
+            else if (nrChannels == 4) {
+                format = GL_RGBA;  // RGBA image
+            }
             glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
             glGenerateMipmap(GL_TEXTURE_2D);
         }
@@ -55,12 +66,15 @@ namespace GladHelper {
     }
 
     void ClearScreen() {
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        //glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         //glClearColor(1.f, 1.f, 1.f, 1.0f);
+        glClearColor(0.678f, 0.847f, 1.0f, 1.0f);  // Light blue color
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clears both color and depth buffers
     }
 
     void MeshBuffers::SetupMeshBuffers(const float* vertices, size_t vertexCount, const unsigned int* indices, size_t indexCount) {
+
         // Generate and bind VAO
         glGenVertexArrays(1, &VAO);
         glBindVertexArray(VAO);

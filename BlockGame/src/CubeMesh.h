@@ -7,7 +7,8 @@
 class CubeMesh
 {
 public:
-    CubeMesh();
+    static CubeMesh& GetInstance();
+
 
     enum class Texture
     {
@@ -16,20 +17,24 @@ public:
         STONE
     };
 
-    Shader* GetShader(Texture texture);
+    Shader& GetShader(Texture texture);
     GladHelper::MeshBuffers& GetMeshBuffers();
 
 
     void SwitchTexture(Texture texture);
 
 private:
-    static Shader* ShaderSingle;
-    static Shader* ShaderMixed;
+    CubeMesh();
+    // prevents creating another instance of this class in code
+    CubeMesh(const CubeMesh&) = delete;
+    CubeMesh& operator=(const CubeMesh&) = delete;
+
+    Shader Shader;
     GladHelper::MeshBuffers MeshBuffers;
 
-    static unsigned int sandTexture;
-    static unsigned int dirtTexture;
-    static unsigned int stoneTexture;
+    unsigned int sandTexture;
+    unsigned int dirtTexture;
+    unsigned int stoneTexture;
 
 };
 #endif

@@ -6,15 +6,7 @@
 Chunk::Chunk(glm::vec3 position, Biomes::Biome currentBiome, FastNoiseLite noise) : chunkPos(position), currentBiome(currentBiome){
     const float spacing = 1.0f;
 
-
-    // Dynamically allocate the cubes array on the heap
-    cubes = new CubeInstance * *[chunkSize];
-    for (int x = 0; x < chunkSize; ++x) {
-        cubes[x] = new CubeInstance * [chunkSize];
-        for (int z = 0; z < chunkSize; ++z) {
-            cubes[x][z] = new CubeInstance[chunkHeight];
-        }
-    }
+    std::vector<glm::mat4> modelMatrices;
 
     // Initialises the cubes with positions and random heights
     for (int x = 0; x < chunkSize; ++x) {
@@ -30,7 +22,6 @@ Chunk::Chunk(glm::vec3 position, Biomes::Biome currentBiome, FastNoiseLite noise
             // Populates the cubes up to the random height
             for (int y = 0; y < height; ++y) {
                 glm::vec3 position(x * spacing, y * spacing, z * spacing);
-                cubes[x][z][y] = CubeInstance(position + chunkPos);
 
                 glm::mat4 model = glm::mat4(1.0f);
                 model = glm::translate(model, position + chunkPos);
@@ -39,7 +30,7 @@ Chunk::Chunk(glm::vec3 position, Biomes::Biome currentBiome, FastNoiseLite noise
         }
     }
 
-    Mesh = CubeMesh();
+    modelMatricesSize = modelMatrices.size();
 
     // configure instanced array
     // -------------------------
@@ -47,9 +38,9 @@ Chunk::Chunk(glm::vec3 position, Biomes::Biome currentBiome, FastNoiseLite noise
     glBindBuffer(GL_ARRAY_BUFFER, chunkBuffer);
 
     // pass the modelMatrices vector to OpenGL
-    glBufferData(GL_ARRAY_BUFFER, modelMatrices.size() * sizeof(glm::mat4), modelMatrices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, modelMatricesSize * sizeof(glm::mat4), modelMatrices.data(), GL_STATIC_DRAW);
 
-    glBindVertexArray(Mesh.GetMeshBuffers().getVAO());
+    glBindVertexArray(CubeMesh::GetInstance().GetMeshBuffers().getVAO());
 
     // set attribute pointers for matrix (4 times vec4)
     glEnableVertexAttribArray(3);
@@ -71,30 +62,41 @@ Chunk::Chunk(glm::vec3 position, Biomes::Biome currentBiome, FastNoiseLite noise
 
 void Chunk::RenderChunk()
 {
-    Mesh.SwitchTexture(currentBiome.texture);
+    CubeMesh::GetInstance().SwitchTexture(currentBiome.texture);
 
-    glBindVertexArray(Mesh.GetMeshBuffers().getVAO());
+    glBindVertexArray(CubeMesh::GetInstance().GetMeshBuffers().getVAO());
 
-    Shader* shader = Mesh.GetShader(currentBiome.texture);
+    glBindBuffer(GL_ARRAY_BUFFER, chunkBuffer);
+
+    Shader& shader = CubeMesh::GetInstance().GetShader(currentBiome.texture);
 
     // activates shader
-    shader->use();
+    shader.use();
 
     // pass projection matrix to shader
-    shader->SetMat4("projection", GLFWHelper::Projection());
+    shader.SetMat4("projectionMatrix", GLFWHelper::Projection());
 
     // camera/view transformation
     glm::mat4 view = glm::mat4(1.0f);
     view = GLFWHelper::LookAt();
-    shader->SetMat4("view", view);
+    shader.SetMat4("viewMatrix", view);
 
 
     // Render the chunk using instanced drawing
-    glDrawElementsInstanced(GL_TRIANGLES, static_cast<unsigned int>(36), GL_UNSIGNED_INT, 0, modelMatrices.size());
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+    glEnableVertexAttribArray(5);
+    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+    glEnableVertexAttribArray(6);
+    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+    glDrawElementsInstanced(GL_TRIANGLES, static_cast<unsigned int>(36), GL_UNSIGNED_INT, 0, modelMatricesSize);
     glBindVertexArray(0);
 }
 
 void Chunk::Deallocate()
 {
-    Mesh.GetMeshBuffers().DeAllocate();
+    CubeMesh::GetInstance().GetMeshBuffers().DeAllocate();
 }

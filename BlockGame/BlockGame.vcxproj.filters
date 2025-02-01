@@ -45,13 +45,7 @@
     <ClCompile Include="src\Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Model.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Mobs\steve.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Mobs\pig.cpp">
+    <ClCompile Include="src\map.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1220,19 +1214,13 @@
     <ClInclude Include="src\Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Model.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="dependencies\include\assimp\port\AndroidJNI\AndroidJNIIOSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dependencies\include\assimp\port\AndroidJNI\BundledAssetIOSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Mobs\steve.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Mobs\pig.h">
+    <ClInclude Include="src\map.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1685,8 +1673,6 @@
     </None>
     <None Include="shaders\frag_single_texture.glsl" />
     <None Include="objects\zombie\source\zombie.fbx" />
-    <None Include="shaders\model_import_vertex.glsl" />
-    <None Include="shaders\model_import_frag.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="container.jpg">
