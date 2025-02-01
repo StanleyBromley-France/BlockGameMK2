@@ -1,8 +1,8 @@
 #ifndef CUBE_MESH_H
 #define CUBE_MESH_H
 
-#include "Shader.h"
-#include "GladHelper.h"
+#include "shader.h"
+#include "../helpers/include/gladHelper.h"
 
 class CubeMesh
 {

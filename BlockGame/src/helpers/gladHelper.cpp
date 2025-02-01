@@ -1,4 +1,4 @@
-#include "GladHelper.h"
+#include "include/gladHelper.h"
 #include "STB/stb_image.h"
 
 namespace GladHelper {

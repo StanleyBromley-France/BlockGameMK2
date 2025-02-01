@@ -1,4 +1,4 @@
-#include "GLFWHelper.h"
+#include "include/glfwHelper.h"
 
 // settings
 const unsigned int GLFWHelper::SCR_WIDTH = 800;

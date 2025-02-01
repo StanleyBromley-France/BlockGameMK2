@@ -1,34 +1,62 @@
-#include "Chunk.h"
+#include "include/chunk.h"
+#include "helpers/include/glfwHelper.h"
+#include "globals/tupleHash.h"
 
 #include <algorithm>
 #include <cstdlib>
+#include <unordered_map>
 
 Chunk::Chunk(glm::vec3 position, Biomes::Biome currentBiome, FastNoiseLite noise) : chunkPos(position), currentBiome(currentBiome){
+    // Custom hash function for std::tuple<int, int, int>
+
+
     const float spacing = 1.0f;
-
     std::vector<glm::mat4> modelMatrices;
+    std::unordered_map<std::tuple<int, int, int>, glm::mat4, TupleHash> blockMap;
+    std::vector<int> heights;
 
-    // Initialises the cubes with positions and random heights
     for (int x = 0; x < chunkSize; ++x) {
         for (int z = 0; z < chunkSize; ++z) {
-            // Generates a noise value for this (x, z) coordinate
             float noiseValue = noise.GetNoise((x + chunkPos.x) * currentBiome.noiseScale, (z + chunkPos.z) * currentBiome.noiseScale);
-
-            // Maps noise value from [-1, 1] to [0, 5] for height
             int height = static_cast<int>((noiseValue + 1.0f) * currentBiome.heightScale);
-            // Clamps the height to the range [0, 5]
+
             height = std::clamp(height, 1, chunkHeight);
 
-            // Populates the cubes up to the random height
+            heights.push_back(height);
+
             for (int y = 0; y < height; ++y) {
                 glm::vec3 position(x * spacing, y * spacing, z * spacing);
-
                 glm::mat4 model = glm::mat4(1.0f);
                 model = glm::translate(model, position + chunkPos);
-                modelMatrices.push_back(model);  // Add the model matrix to the vector
+
+                // Store in hash map
+                blockMap[{x, y, z}] = model;
             }
         }
     }
+
+    // Directions to check: left, right, front, back, above, below
+    std::vector<std::tuple<int, int, int>> directions = {
+        {-1, 0, 0}, {1, 0, 0}, {0, 0, -1}, {0, 0, 1}, {0, -1, 0}, {0, 1, 0}
+    };
+
+    // Iterate through stored blocks and check for empty spaces
+    for (const auto& [pos, model] : blockMap) {
+        auto [x, y, z] = pos;
+        bool hasEmptyNeighbor = false;
+
+        for (const auto& [dx, dy, dz] : directions) {
+            if (blockMap.find({ x + dx, y + dy, z + dz }) == blockMap.end()) {
+                hasEmptyNeighbor = true;
+                break;
+            }
+        }
+
+        if (hasEmptyNeighbor) {
+            modelMatrices.push_back(model);
+        }
+    }
+
 
     modelMatricesSize = modelMatrices.size();
 
@@ -41,16 +69,6 @@ Chunk::Chunk(glm::vec3 position, Biomes::Biome currentBiome, FastNoiseLite noise
     glBufferData(GL_ARRAY_BUFFER, modelMatricesSize * sizeof(glm::mat4), modelMatrices.data(), GL_STATIC_DRAW);
 
     glBindVertexArray(CubeMesh::GetInstance().GetMeshBuffers().getVAO());
-
-    // set attribute pointers for matrix (4 times vec4)
-    glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
-    glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
-    glEnableVertexAttribArray(5);
-    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
-    glEnableVertexAttribArray(6);
-    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
 
     glVertexAttribDivisor(3, 1);
     glVertexAttribDivisor(4, 1);

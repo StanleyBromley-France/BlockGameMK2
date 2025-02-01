@@ -2,10 +2,11 @@
 #define GLAD_HELPER_H
 
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "glfwHelper.h"
+
 #include <iostream>
 
-#include "Shader.h"
+#include "../../include/shader.h"
 
 #include "STB/stb_image.h"
 

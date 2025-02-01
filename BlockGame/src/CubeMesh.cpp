@@ -1,4 +1,4 @@
-#include "CubeMesh.h"
+#include "include/cubeMesh.h"
 
 // static method to get the singleton instance
 CubeMesh& CubeMesh::GetInstance()

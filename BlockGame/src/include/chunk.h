@@ -5,9 +5,7 @@
 #include <vector>
 #include <FastNoiseLite.h>
 
-#include "CubeInstance.h"
-#include "Biomes.h"
-#include "GladHelper.h"
+#include "biomes.h"
 
 class Chunk {
 public:

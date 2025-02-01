@@ -1,9 +1,8 @@
 #ifndef BIOMES_H
 #define BIOMES_H
 
-#include "CubeMesh.h"
+#include "cubeMesh.h"
 #include <vector>
-#include <algorithm>
 #include <string>
 
 namespace Biomes {

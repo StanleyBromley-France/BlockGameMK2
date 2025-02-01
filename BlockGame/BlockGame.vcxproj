@@ -137,14 +137,12 @@
   <ItemGroup>
     <ClCompile Include="dependencies\include\glm\detail\glm.cpp" />
     <ClCompile Include="glad.c" />
-    <ClCompile Include="src\Chunk.cpp" />
-    <ClCompile Include="src\CubeInstance.cpp" />
-    <ClCompile Include="src\CubeMesh.cpp" />
-    <ClCompile Include="src\GladHelper.cpp" />
-    <ClCompile Include="src\GLFWHelper.cpp" />
+    <ClCompile Include="src\chunk.cpp" />
+    <ClCompile Include="src\cubeMesh.cpp" />
+    <ClCompile Include="src\helpers\gladHelper.cpp" />
+    <ClCompile Include="src\helpers\glfwHelper.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\map.cpp" />
-    <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="stb.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -530,15 +528,14 @@
     <ClInclude Include="dependencies\include\GL\wglew.h" />
     <ClInclude Include="dependencies\include\KHR\khrplatform.h" />
     <ClInclude Include="dependencies\include\STB\stb_image.h" />
-    <ClInclude Include="src\Biomes.h" />
-    <ClInclude Include="src\Chunk.h" />
-    <ClInclude Include="src\CubeInstance.h" />
-    <ClInclude Include="src\CubeMesh.h" />
-    <ClInclude Include="src\GladHelper.h" />
-    <ClInclude Include="src\map.h" />
-    <ClInclude Include="src\Mesh.h" />
-    <ClInclude Include="src\Shader.h" />
-    <ClInclude Include="src\GLFWHelper.h" />
+    <ClInclude Include="src\globals\tupleHash.h" />
+    <ClInclude Include="src\include\biomes.h" />
+    <ClInclude Include="src\include\chunk.h" />
+    <ClInclude Include="src\include\cubeMesh.h" />
+    <ClInclude Include="src\helpers\include\gladHelper.h" />
+    <ClInclude Include="src\include\map.h" />
+    <ClInclude Include="src\include\shader.h" />
+    <ClInclude Include="src\helpers\include\glfwHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="dependencies\lib\assimp-vc143-mt.lib" />
