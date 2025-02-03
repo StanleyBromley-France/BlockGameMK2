@@ -1,7 +1,5 @@
-
-
 #include "include/shader.h"
-#include "include/map.h"
+#include "include/world.h"
 
 double lastTime = 0.0;
 int frameCount = 0;
@@ -48,7 +46,7 @@ int main()
     }
     unsigned int randomSeed = static_cast<unsigned int>(std::time(nullptr));
 
-    Map map = Map(32, 32, randomSeed);
+    World map = World(32, 32, randomSeed);
     
     // render loop
     while (!glfwWindowShouldClose(window))

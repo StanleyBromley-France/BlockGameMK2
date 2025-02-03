@@ -39,7 +39,7 @@
     <ClCompile Include="src\chunk.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\map.cpp">
+    <ClCompile Include="src\world.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1208,10 +1208,10 @@
     <ClInclude Include="dependencies\include\assimp\port\AndroidJNI\BundledAssetIOSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\include\map.h">
+    <ClInclude Include="src\include\world.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\globals\tupleHash.h">
+    <ClInclude Include="src\globals\hashUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

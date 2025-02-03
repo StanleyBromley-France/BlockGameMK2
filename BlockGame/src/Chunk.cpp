@@ -1,18 +1,14 @@
 #include "include/chunk.h"
+
 #include "helpers/include/glfwHelper.h"
-#include "globals/tupleHash.h"
 
-#include <algorithm>
-#include <cstdlib>
-#include <unordered_map>
 
-Chunk::Chunk(glm::vec3 position, Biomes::Biome currentBiome, FastNoiseLite noise) : chunkPos(position), currentBiome(currentBiome){
-    // Custom hash function for std::tuple<int, int, int>
 
+Chunk::Chunk(glm::vec3 position, Biomes::Biome currentBiome, FastNoiseLite noise, std::pair<int, int> gridPos) : chunkPos(position), currentBiome(currentBiome), chunkGridCoord(gridPos){
 
     const float spacing = 1.0f;
     std::vector<glm::mat4> modelMatrices;
-    std::unordered_map<std::tuple<int, int, int>, glm::mat4, TupleHash> blockMap;
+    
     std::vector<int> heights;
 
     for (int x = 0; x < chunkSize; ++x) {
@@ -34,10 +30,15 @@ Chunk::Chunk(glm::vec3 position, Biomes::Biome currentBiome, FastNoiseLite noise
             }
         }
     }
+}
+
+void Chunk::SetUpBuffer(std::unordered_map<std::pair<int, int>, Chunk*, PairHash>& chunkMap)
+{
+    std::vector<glm::mat4> modelMatrices;
 
     // Directions to check: left, right, front, back, above, below
     std::vector<std::tuple<int, int, int>> directions = {
-        {-1, 0, 0}, {1, 0, 0}, {0, 0, -1}, {0, 0, 1}, {0, -1, 0}, {0, 1, 0}
+        {-1, 0, 0}, {1, 0, 0}, {0, 0, -1}, {0, 0, 1}
     };
 
     // Iterate through stored blocks and check for empty spaces
@@ -45,13 +46,28 @@ Chunk::Chunk(glm::vec3 position, Biomes::Biome currentBiome, FastNoiseLite noise
         auto [x, y, z] = pos;
         bool hasEmptyNeighbor = false;
 
-        for (const auto& [dx, dy, dz] : directions) {
-            if (blockMap.find({ x + dx, y + dy, z + dz }) == blockMap.end()) {
-                hasEmptyNeighbor = true;
-                break;
+        if (blockMap.find({ x, y + 1, z }) == blockMap.end()) {
+            hasEmptyNeighbor = true;
+        }
+        else if (blockMap.find({ x, y - 1, z }) == blockMap.end()) {
+            hasEmptyNeighbor = true;
+        }
+        else {
+            for (const auto& [dx, dy, dz] : directions) {
+                if (blockMap.find({ x + dx, y, z + dz }) == blockMap.end()) {
+                    hasEmptyNeighbor = true;
+                }
+                if ((x == 0 && dx == -1) || (x == 15 && dx == 1)) {
+                    hasEmptyNeighbor = CheckOtherChunkForBlock(chunkMap, x, y, z);
+                }
+                if ((z == 0 && dz == -1) || (z == 15 && dz == 1)) {
+                    hasEmptyNeighbor = CheckOtherChunkForBlock(chunkMap, x, y, z);
+                }
+                if (hasEmptyNeighbor)
+                    break;
             }
         }
-
+            
         if (hasEmptyNeighbor) {
             modelMatrices.push_back(model);
         }
@@ -76,6 +92,75 @@ Chunk::Chunk(glm::vec3 position, Biomes::Biome currentBiome, FastNoiseLite noise
     glVertexAttribDivisor(6, 1);
 
     glBindVertexArray(0);
+}
+
+bool Chunk::CheckOtherChunkForBlock(std::unordered_map<std::pair<int, int>, Chunk*, PairHash>& chunkMap, int& x, int& y, int& z)
+{
+    bool hasEmptyNeighbor = false;
+    if (z == 0 || z == 15) {
+
+        int xOffset = 0;
+        int zOffset;
+
+        if (z == 0) {
+            zOffset = -1;
+        }
+        else if (z == 15) {
+            zOffset = 1;
+        }
+
+        std::pair<int, int> neighborChunkCoord = { chunkGridCoord.first + xOffset,  chunkGridCoord.second + zOffset };
+
+        Chunk* neighborChunk = nullptr;
+
+        auto it = chunkMap.find(neighborChunkCoord);
+        if (it != chunkMap.end()) {
+            // Key exists, access the chunk
+            neighborChunk = it->second;
+        }
+
+        int newZ = abs(z - 15);
+
+
+        if (!neighborChunk || neighborChunk->blockMap.find({ x, y, newZ }) == neighborChunk->blockMap.end()) {
+            hasEmptyNeighbor = true;
+        }
+    }
+
+    if ((x == 0 || x == 15) && hasEmptyNeighbor == false) {
+
+        int xOffset;
+        int zOffset = 0;
+
+       if (x == 0) {
+            xOffset = -1;
+        }
+
+        else if (x == 15) {
+            xOffset = 1;
+        }
+
+
+        std::pair<int, int> neighborChunkCoord = { chunkGridCoord.first + xOffset,  chunkGridCoord.second + zOffset };
+
+        Chunk* neighborChunk = nullptr;
+
+        auto it = chunkMap.find(neighborChunkCoord);
+        if (it != chunkMap.end()) {
+            // Key exists, access the chunk
+            neighborChunk = it->second;
+        }
+
+        int newX = abs(x - 15);
+
+
+        if (!neighborChunk || neighborChunk->blockMap.find({ newX, y, z }) == neighborChunk->blockMap.end()) {
+            hasEmptyNeighbor = true;
+        }
+    }
+
+
+    return hasEmptyNeighbor;
 }
 
 void Chunk::RenderChunk()
