@@ -45,6 +45,8 @@ GLFWwindow* GLFWHelper::initialiseAndConfigure() {
     // hides mouse and takes control of the mouse input
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+    glfwSwapInterval(0);
+
     return window;
 }
 

@@ -19,7 +19,7 @@ public:
 	void Deallocate();
 	glm::vec3 chunkPos;
 	std::pair<int, int> chunkGridCoord;
-	std::unordered_map<std::tuple<int, int, int>, glm::mat4, TupleHash> blockMap;
+	std::unordered_map<std::tuple<int, int, int>, bool, TupleHash> blockMap;
 private:
 	bool CheckOtherChunkForBlock(std::unordered_map<std::pair<int, int>, Chunk*, PairHash>& chunkMap, int& x, int& y, int& z);
 	Biomes::Biome currentBiome;

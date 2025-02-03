@@ -46,7 +46,7 @@ int main()
     }
     unsigned int randomSeed = static_cast<unsigned int>(std::time(nullptr));
 
-    World map = World(32, 32, randomSeed);
+    World map = World(100, 100, randomSeed);
     
     // render loop
     while (!glfwWindowShouldClose(window))

@@ -7,7 +7,6 @@
 Chunk::Chunk(glm::vec3 position, Biomes::Biome currentBiome, FastNoiseLite noise, std::pair<int, int> gridPos) : chunkPos(position), currentBiome(currentBiome), chunkGridCoord(gridPos){
 
     const float spacing = 1.0f;
-    std::vector<glm::mat4> modelMatrices;
     
     std::vector<int> heights;
 
@@ -26,7 +25,7 @@ Chunk::Chunk(glm::vec3 position, Biomes::Biome currentBiome, FastNoiseLite noise
                 model = glm::translate(model, position + chunkPos);
 
                 // Store in hash map
-                blockMap[{x, y, z}] = model;
+                blockMap[{x, y, z}] = true;
             }
         }
     }
@@ -35,6 +34,7 @@ Chunk::Chunk(glm::vec3 position, Biomes::Biome currentBiome, FastNoiseLite noise
 void Chunk::SetUpBuffer(std::unordered_map<std::pair<int, int>, Chunk*, PairHash>& chunkMap)
 {
     std::vector<glm::mat4> modelMatrices;
+    const float spacing = 1.0f;
 
     // Directions to check: left, right, front, back, above, below
     std::vector<std::tuple<int, int, int>> directions = {
@@ -42,7 +42,7 @@ void Chunk::SetUpBuffer(std::unordered_map<std::pair<int, int>, Chunk*, PairHash
     };
 
     // Iterate through stored blocks and check for empty spaces
-    for (const auto& [pos, model] : blockMap) {
+    for (const auto& [pos, block] : blockMap) {
         auto [x, y, z] = pos;
         bool hasEmptyNeighbor = false;
 
@@ -56,19 +56,23 @@ void Chunk::SetUpBuffer(std::unordered_map<std::pair<int, int>, Chunk*, PairHash
             for (const auto& [dx, dy, dz] : directions) {
                 if (blockMap.find({ x + dx, y, z + dz }) == blockMap.end()) {
                     hasEmptyNeighbor = true;
+                    if ((x == 0 && dx == -1) || (x == 15 && dx == 1)) {
+                        hasEmptyNeighbor = CheckOtherChunkForBlock(chunkMap, x, y, z);
+                    }
+                    else if ((z == 0 && dz == -1) || (z == 15 && dz == 1)) {
+                        hasEmptyNeighbor = CheckOtherChunkForBlock(chunkMap, x, y, z);
+                    }
+
+                    if (hasEmptyNeighbor)
+                        break;
                 }
-                if ((x == 0 && dx == -1) || (x == 15 && dx == 1)) {
-                    hasEmptyNeighbor = CheckOtherChunkForBlock(chunkMap, x, y, z);
-                }
-                if ((z == 0 && dz == -1) || (z == 15 && dz == 1)) {
-                    hasEmptyNeighbor = CheckOtherChunkForBlock(chunkMap, x, y, z);
-                }
-                if (hasEmptyNeighbor)
-                    break;
             }
         }
             
         if (hasEmptyNeighbor) {
+            glm::vec3 position(x * spacing, y * spacing, z * spacing);
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, position + chunkPos);
             modelMatrices.push_back(model);
         }
     }
