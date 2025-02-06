@@ -20,6 +20,8 @@ namespace GladHelper {
 
         //glDepthMask(GL_FALSE);  // Disable depth writing
 
+        glEnable(GL_MULTISAMPLE);
+
         return true;
     }
 
@@ -36,8 +38,13 @@ namespace GladHelper {
         //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);  // No interpolation when minifying (scaling down)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);  // No interpolation when minifying (scaling down)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  // No interpolation when magnifying (scaling up)
+
+ 
+        float anisoValue = 16.0f; // Could be 16.0f maybe?
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisoValue);
+
 
 
         // creates and sends image data
@@ -56,6 +63,9 @@ namespace GladHelper {
             }
             glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
             glGenerateMipmap(GL_TEXTURE_2D);
+
+            
+
         }
         else {
             std::cerr << "Failed to load texture: " << imagePath << std::endl;
